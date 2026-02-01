@@ -18,7 +18,7 @@ export const db = {
   // Entity CRUD
   async createEntity(entity: Entity): Promise<void> {
     await redis.sadd('entities:all', entity.id);
-    await redis.hset(`entity:${entity.id}`, entity);
+    await redis.hset(`entity:${entity.id}`, entity as Record<string, unknown>);
   },
 
   async getEntity(id: string): Promise<Entity | null> {
@@ -40,7 +40,7 @@ export const db = {
     const existing = await this.getEntity(id);
     if (!existing) throw new Error('Entity not found');
 
-    await redis.hset(`entity:${id}`, { ...existing, ...updates });
+    await redis.hset(`entity:${id}`, { ...existing, ...updates } as Record<string, unknown>);
   },
 
   async deleteEntity(id: string): Promise<void> {
@@ -55,7 +55,7 @@ export const db = {
     const entityKey = `mentions:entity:${mention.entityId}`;
 
     // Store mention data
-    await redis.hset(mentionKey, mention);
+    await redis.hset(mentionKey, mention as Record<string, unknown>);
 
     // Add to entity's mention list (sorted by timestamp)
     await redis.zadd(entityKey, {
