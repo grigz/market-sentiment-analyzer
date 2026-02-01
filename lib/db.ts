@@ -23,7 +23,7 @@ export const db = {
 
   async getEntity(id: string): Promise<Entity | null> {
     const entity = await redis.hgetall(`entity:${id}`);
-    return entity ? (entity as Entity) : null;
+    return entity ? (entity as unknown as Entity) : null;
   },
 
   async getAllEntities(): Promise<Entity[]> {
@@ -70,7 +70,7 @@ export const db = {
 
   async getMention(id: string): Promise<Mention | null> {
     const mention = await redis.hgetall(`mention:${id}`);
-    return mention ? (mention as Mention) : null;
+    return mention ? (mention as unknown as Mention) : null;
   },
 
   async getMentionsByEntity(
@@ -121,7 +121,7 @@ export const db = {
     if (!insights) return [];
 
     return Object.values(insights).map(val =>
-      JSON.parse(val as string) as CompanyInsight
+      JSON.parse(val as string) as unknown as CompanyInsight
     );
   },
 
