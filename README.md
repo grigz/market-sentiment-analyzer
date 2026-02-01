@@ -11,7 +11,7 @@ A Next.js web application for tracking market sentiment across keywords and comp
 - **Detail Views**: Separate tabs for keywords and companies with granular insights
 - **Company Intelligence**: Categorized insights into culture, opinions, and challenges
 - **Export Capabilities**: Download data in CSV and JSON formats
-- **Automated Scanning**: Runs every 12 hours via Vercel Cron
+- **Automated Scanning**: Runs daily at midnight UTC via Vercel Cron
 - **2-Day Window**: Focus on the most recent 48 hours of data
 
 ## Tech Stack
