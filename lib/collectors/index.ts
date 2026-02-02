@@ -8,6 +8,9 @@ import { collectHackerNews } from './hackernews';
 import { collectReddit } from './reddit';
 import { collectGDELT } from './gdelt';
 import { collectGitHub } from './github';
+import { collectBluesky } from './bluesky';
+import { collectX } from './x';
+import { collectLinkedIn } from './linkedin';
 import { categorizeInsight } from '../sentiment';
 
 /**
@@ -19,6 +22,9 @@ async function collectForEntity(entity: Entity): Promise<Mention[]> {
     collectReddit(entity),
     collectGDELT(entity),
     collectGitHub(entity),
+    collectBluesky(entity),
+    collectX(entity),
+    collectLinkedIn(entity),
   ];
 
   const results = await Promise.allSettled(collectors);

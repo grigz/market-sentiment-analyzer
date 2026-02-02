@@ -127,7 +127,9 @@ Downloads automatically with timestamped filename.
 
 ## Data Sources
 
-The app collects data from these public sources:
+The app collects data from these sources:
+
+### Always Active (No Auth Required)
 
 1. **Hacker News** (Algolia API)
    - Tech discussions, startup news
@@ -148,6 +150,24 @@ The app collects data from these public sources:
    - Issues and discussions
    - 10 requests/minute (unauthenticated)
    - Public repositories only
+
+5. **Bluesky** (AT Protocol API)
+   - Decentralized social network
+   - No authentication required
+   - Public API access
+
+### Optional (Requires API Keys)
+
+6. **X (Twitter)** - Requires Bearer Token
+   - Get API access at [developer.twitter.com](https://developer.twitter.com)
+   - Add `X_BEARER_TOKEN` to environment variables
+   - Note: Free tier is very limited
+
+7. **LinkedIn** - Requires Google Custom Search API
+   - Get API key at [console.cloud.google.com](https://console.cloud.google.com)
+   - Add `GOOGLE_API_KEY` and `GOOGLE_SEARCH_ENGINE_ID`
+   - Searches LinkedIn posts via Google
+   - Alternative: Direct LinkedIn API (requires approval)
 
 ## Deployment to Vercel
 
