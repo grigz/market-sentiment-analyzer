@@ -3,11 +3,24 @@
  * POST: Run scan for all enabled entities
  */
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { runScan } from '@/lib/collectors';
+import { verifyScanAuth } from '@/lib/auth';
 import type { ApiResponse, ScanResult } from '@/lib/types';
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+  // Verify authorization if SCAN_PASSWORD is set
+  const authHeader = request.headers.get('authorization');
+  if (!verifyScanAuth(authHeader)) {
+    return NextResponse.json<ApiResponse<null>>(
+      {
+        success: false,
+        error: 'Unauthorized',
+      },
+      { status: 401 }
+    );
+  }
+
   try {
     console.log('Starting scan...');
     const result = await runScan();

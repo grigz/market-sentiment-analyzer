@@ -45,7 +45,30 @@ export default function Dashboard() {
   const handleScan = async () => {
     setScanning(true);
     try {
-      const response = await fetch('/api/scan', { method: 'POST' });
+      // Check if we have a saved password
+      let password = localStorage.getItem('scanPassword') || '';
+
+      // Try scanning with saved password first
+      let response = await fetch('/api/scan', {
+        method: 'POST',
+        headers: password ? { 'Authorization': `Bearer ${password}` } : {},
+      });
+
+      // If unauthorized and no password was used, prompt for one
+      if (response.status === 401 && !password) {
+        password = prompt('Enter scan password:') || '';
+        if (!password) {
+          setScanning(false);
+          return;
+        }
+        localStorage.setItem('scanPassword', password);
+
+        response = await fetch('/api/scan', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${password}` },
+        });
+      }
+
       const data = await response.json();
 
       if (data.success) {
@@ -55,7 +78,12 @@ export default function Dashboard() {
         await fetchData();
         alert(`Scan completed! Collected ${data.data.mentionsCollected} mentions.`);
       } else {
-        alert('Scan failed: ' + data.error);
+        if (response.status === 401) {
+          localStorage.removeItem('scanPassword');
+          alert('Incorrect password. Please try again.');
+        } else {
+          alert('Scan failed: ' + data.error);
+        }
       }
     } catch (error) {
       console.error('Scan error:', error);
