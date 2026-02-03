@@ -1,11 +1,11 @@
 # Market Sentiment Analyzer
 
-A Next.js web application for tracking market sentiment across keywords and companies in real-time. Aggregates data from multiple sources including Hacker News, GDELT News, GitHub, Bluesky, and optionally Reddit, X/Twitter, and LinkedIn.
+A Next.js web application for tracking market sentiment across keywords and companies in real-time. Aggregates data from multiple sources including Hacker News, GDELT News, Bluesky, and optionally Reddit, X/Twitter, and LinkedIn.
 
 ## Features
 
 - **Entity Tracking**: Monitor both keywords and companies
-- **Multi-Source Data**: Collect mentions from 7 data sources (3 work out-of-the-box, 4 optional)
+- **Multi-Source Data**: Collect mentions from 7 data sources (2 active by default, 5 optional)
 - **Sentiment Analysis**: Automated positive/negative/neutral scoring
 - **Dashboard Analytics**: Visual metrics, charts, and distribution graphs
 - **Detail Views**: Separate tabs for keywords and companies with granular insights
@@ -154,11 +154,13 @@ The app collects data from multiple sources. Here's what works out of the box vs
    - Multiple languages supported
    - ✅ Working out of the box
 
+### ❌ Disabled Sources
+
 3. **GitHub** (Search API)
-   - Issues and discussions
-   - 10 requests/minute (unauthenticated)
-   - Public repositories only
-   - ✅ Working out of the box
+   - ❌ **Disabled by default** - Returns too many results (20+ per entity)
+   - To re-enable: Uncomment in `lib/collectors/index.ts`
+   - Issues and discussions from public repositories
+   - No authentication required
 
 ### ⚠️ Partially Working (May Be Blocked)
 

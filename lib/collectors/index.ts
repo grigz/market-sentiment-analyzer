@@ -21,7 +21,7 @@ async function collectForEntity(entity: Entity): Promise<Mention[]> {
     'HackerNews',
     'Reddit',
     'GDELT',
-    'GitHub',
+    // 'GitHub', // Disabled - too many posts
     'Bluesky',
     'X',
     'LinkedIn',
@@ -31,7 +31,7 @@ async function collectForEntity(entity: Entity): Promise<Mention[]> {
     collectHackerNews(entity),
     collectReddit(entity),
     collectGDELT(entity),
-    collectGitHub(entity),
+    // collectGitHub(entity), // Disabled - too many posts
     collectBluesky(entity),
     collectX(entity),
     collectLinkedIn(entity),
