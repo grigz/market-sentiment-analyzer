@@ -1,11 +1,11 @@
 # Market Sentiment Analyzer
 
-A Next.js web application for tracking market sentiment across keywords and companies in real-time. Aggregates data from multiple public sources including Hacker News, Reddit, GDELT News, and GitHub.
+A Next.js web application for tracking market sentiment across keywords and companies in real-time. Aggregates data from multiple sources including Hacker News, GDELT News, GitHub, Bluesky, and optionally Reddit, X/Twitter, and LinkedIn.
 
 ## Features
 
 - **Entity Tracking**: Monitor both keywords and companies
-- **Real-time Data**: Collect mentions from 4+ public data sources
+- **Multi-Source Data**: Collect mentions from 7 data sources (3 work out-of-the-box, 4 optional)
 - **Sentiment Analysis**: Automated positive/negative/neutral scoring
 - **Dashboard Analytics**: Visual metrics, charts, and distribution graphs
 - **Detail Views**: Separate tabs for keywords and companies with granular insights
@@ -57,6 +57,17 @@ UPSTASH_REDIS_REST_TOKEN=xxx
 # Cron secret (generate with: openssl rand -base64 32)
 CRON_SECRET=your-secret-here
 
+# Bluesky (optional - free, highly recommended)
+BLUESKY_IDENTIFIER=your-username.bsky.social
+BLUESKY_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx
+
+# X/Twitter (optional - paid plans only)
+X_BEARER_TOKEN=your-bearer-token
+
+# LinkedIn via Google (optional)
+GOOGLE_API_KEY=your-api-key
+GOOGLE_SEARCH_ENGINE_ID=your-search-engine-id
+
 # Optional: For enhanced sentiment analysis (future)
 OPENAI_API_KEY=sk-xxx
 ANTHROPIC_API_KEY=sk-ant-xxx
@@ -66,6 +77,8 @@ To get Upstash credentials:
 - Sign up at [upstash.com](https://upstash.com)
 - Create a new Redis database
 - Copy the REST URL and token from the database dashboard
+
+See "Setting Up Optional Data Sources" section below for Bluesky, X, and LinkedIn setup.
 
 4. Run the development server:
 ```bash
@@ -127,47 +140,123 @@ Downloads automatically with timestamped filename.
 
 ## Data Sources
 
-The app collects data from these sources:
+The app collects data from multiple sources. Here's what works out of the box vs. what requires API credentials:
 
-### Always Active (No Auth Required)
+### ✅ Always Active (No Auth Required)
 
 1. **Hacker News** (Algolia API)
    - Tech discussions, startup news
    - No authentication required
    - Unlimited requests
+   - ✅ Working out of the box
 
-2. **Reddit** (JSON API)
-   - Community discussions across subreddits
-   - 60 requests/minute limit
-   - No authentication for public data
-
-3. **GDELT News** (Global Database of Events)
+2. **GDELT News** (Global Database of Events)
    - News articles from worldwide sources
    - 250 queries/day free tier
    - Multiple languages supported
+   - ✅ Working out of the box
 
-4. **GitHub** (Search API)
+3. **GitHub** (Search API)
    - Issues and discussions
    - 10 requests/minute (unauthenticated)
    - Public repositories only
+   - ✅ Working out of the box
+
+### ⚠️ Partially Working (May Be Blocked)
+
+4. **Reddit** (JSON API)
+   - Community discussions across subreddits
+   - ⚠️ May be blocked by Reddit's anti-automation measures
+   - Uses old.reddit.com with browser-like headers
+   - No authentication required, but success rate varies
+
+### 🔐 Requires Authentication
 
 5. **Bluesky** (AT Protocol API)
    - Decentralized social network
-   - No authentication required
-   - Public API access
-
-### Optional (Requires API Keys)
+   - 🔐 **Requires free Bluesky account** (see setup below)
+   - Free and unlimited once configured
 
 6. **X (Twitter)** - Requires Bearer Token
    - Get API access at [developer.twitter.com](https://developer.twitter.com)
    - Add `X_BEARER_TOKEN` to environment variables
-   - Note: Free tier is very limited
+   - ⚠️ **Note**: Free tier no longer available, requires paid plan ($100+/month)
 
 7. **LinkedIn** - Requires Google Custom Search API
    - Get API key at [console.cloud.google.com](https://console.cloud.google.com)
    - Add `GOOGLE_API_KEY` and `GOOGLE_SEARCH_ENGINE_ID`
    - Searches LinkedIn posts via Google
-   - Alternative: Direct LinkedIn API (requires approval)
+   - Alternative: Direct LinkedIn API (requires LinkedIn Developer approval)
+
+## Setting Up Optional Data Sources
+
+### Bluesky Setup (Recommended - Free & Easy)
+
+Bluesky now requires authentication but it's completely free:
+
+1. **Get a Bluesky account** (if you don't have one):
+   - Sign up at https://bsky.app
+
+2. **Create an App Password**:
+   - Go to https://bsky.app/settings/app-passwords
+   - Click "Add App Password"
+   - Name it "Market Sentiment Analyzer"
+   - Copy the generated password (format: `xxxx-xxxx-xxxx-xxxx`)
+   - ⚠️ Save it immediately - you won't see it again!
+
+3. **Add to your environment variables**:
+   ```bash
+   BLUESKY_IDENTIFIER=your-username.bsky.social
+   BLUESKY_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx
+   ```
+
+4. **For Vercel deployments**:
+   - Go to Vercel Dashboard → Your Project → Settings → Environment Variables
+   - Add both `BLUESKY_IDENTIFIER` and `BLUESKY_APP_PASSWORD`
+   - Select all environments (Production, Preview, Development)
+   - Redeploy your application
+
+### X/Twitter Setup (Optional - Paid Only)
+
+X's API is now paid-only. Basic tier starts at $100/month:
+
+1. Apply for API access at https://developer.twitter.com
+2. Subscribe to a paid plan (Basic, Pro, or Enterprise)
+3. Get your Bearer Token from the developer portal
+4. Add to environment variables:
+   ```bash
+   X_BEARER_TOKEN=your-bearer-token
+   ```
+
+### LinkedIn Setup (Optional - Via Google)
+
+Use Google Custom Search API to search LinkedIn:
+
+1. **Create Google Cloud Project**:
+   - Go to https://console.cloud.google.com
+   - Create a new project
+
+2. **Enable Custom Search API**:
+   - Navigate to APIs & Services → Library
+   - Search for "Custom Search API"
+   - Click Enable
+
+3. **Get API Key**:
+   - Go to APIs & Services → Credentials
+   - Create Credentials → API Key
+   - Copy your API key
+
+4. **Create Custom Search Engine**:
+   - Go to https://programmablesearchengine.google.com
+   - Create a new search engine
+   - Add `linkedin.com` as a site to search
+   - Get your Search Engine ID
+
+5. **Add to environment variables**:
+   ```bash
+   GOOGLE_API_KEY=your-api-key
+   GOOGLE_SEARCH_ENGINE_ID=your-search-engine-id
+   ```
 
 ## Deployment to Vercel
 
@@ -182,9 +271,18 @@ The app collects data from these sources:
    - Framework preset: Next.js (auto-detected)
 
 3. Add environment variables in Vercel dashboard:
-   - `UPSTASH_REDIS_REST_URL`
-   - `UPSTASH_REDIS_REST_TOKEN`
-   - `CRON_SECRET`
+
+   **Required:**
+   - `UPSTASH_REDIS_REST_URL` - Your Upstash Redis URL
+   - `UPSTASH_REDIS_REST_TOKEN` - Your Upstash Redis token
+   - `CRON_SECRET` - Generate with: `openssl rand -base64 32`
+
+   **Optional (for additional data sources):**
+   - `BLUESKY_IDENTIFIER` - Your Bluesky username (e.g., username.bsky.social)
+   - `BLUESKY_APP_PASSWORD` - App password from Bluesky settings
+   - `X_BEARER_TOKEN` - X/Twitter API bearer token (paid plans only)
+   - `GOOGLE_API_KEY` - For LinkedIn data via Google Custom Search
+   - `GOOGLE_SEARCH_ENGINE_ID` - For LinkedIn data via Google Custom Search
 
 4. Deploy
 
@@ -258,6 +356,33 @@ Example cost: ~$2/month for 10,000 mentions with GPT-3.5.
 
 ## Troubleshooting
 
+### Only GitHub data appears (other sources return 0 mentions)
+
+**Common Causes:**
+
+1. **Bluesky returns 403**:
+   - Bluesky now requires authentication
+   - **Solution**: Add `BLUESKY_IDENTIFIER` and `BLUESKY_APP_PASSWORD` environment variables
+   - See "Setting Up Optional Data Sources" above
+
+2. **Reddit returns 403**:
+   - Reddit actively blocks automated requests
+   - This is expected behavior - Reddit's anti-bot measures are aggressive
+   - **Solution**: Code uses best-effort approach with browser-like headers, but may still be blocked
+
+3. **X returns 402 (Payment Required)**:
+   - X/Twitter no longer has a free API tier
+   - **Solution**: Either subscribe to X API ($100+/month) or skip X data collection
+
+4. **LinkedIn returns 403**:
+   - Google Custom Search API not configured
+   - **Solution**: Add `GOOGLE_API_KEY` and `GOOGLE_SEARCH_ENGINE_ID` or skip LinkedIn
+
+5. **HackerNews/GDELT data collected but filtered out**:
+   - Check Vercel logs for "After 2-day filter" messages
+   - Data older than 48 hours is automatically filtered
+   - **Solution**: Verify timestamps in collector responses
+
 ### No data showing after scan
 
 **Check:**
@@ -265,11 +390,14 @@ Example cost: ~$2/month for 10,000 mentions with GPT-3.5.
 - Entities are enabled (not disabled)
 - Time window is set to 48 hours
 - Redis connection is working (check env vars)
+- Check Vercel logs for actual API errors
 
 **Solution:**
 - Run scan manually with "Scan Now" button
 - Check browser console for errors
+- Check Vercel deployment logs for detailed error messages
 - Verify Upstash Redis credentials
+- Review "Sources breakdown" in logs to see which sources are working
 
 ### Rate limit errors
 
@@ -278,9 +406,10 @@ Example cost: ~$2/month for 10,000 mentions with GPT-3.5.
 - Console shows 403 or 429 errors
 
 **Solution:**
-- GitHub: Add GitHub token for higher rate limits
-- Reddit: Add delay between requests
-- Wait and retry (limits reset hourly)
+- GitHub: 10 req/min limit when unauthenticated (this is normal)
+- Reddit: May show 403 due to anti-bot measures (expected)
+- Bluesky: Add authentication to avoid 403 errors
+- Wait and retry (limits reset hourly for most APIs)
 
 ### Cron job not running
 
@@ -362,6 +491,9 @@ market-sentiment-analyzer/
 │       ├── reddit.ts
 │       ├── gdelt.ts
 │       ├── github.ts
+│       ├── bluesky.ts
+│       ├── x.ts
+│       ├── linkedin.ts
 │       └── index.ts
 ├── package.json
 ├── tsconfig.json

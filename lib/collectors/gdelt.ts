@@ -35,13 +35,14 @@ export async function collectGDELT(entity: Entity): Promise<Mention[]> {
       const { sentiment, score } = analyzeSentiment(fullText);
       const tags = extractTags(fullText, entity.name);
 
-      // Parse date (format: YYYYMMDDHHMMSS)
+      // Parse date (format: YYYYMMDDHHMMSS) - GDELT uses UTC
       const year = parseInt(article.seendate.slice(0, 4));
       const month = parseInt(article.seendate.slice(4, 6)) - 1;
       const day = parseInt(article.seendate.slice(6, 8));
       const hour = parseInt(article.seendate.slice(8, 10));
       const minute = parseInt(article.seendate.slice(10, 12));
-      const publishedAt = new Date(year, month, day, hour, minute).getTime();
+      const second = parseInt(article.seendate.slice(12, 14)) || 0;
+      const publishedAt = Date.UTC(year, month, day, hour, minute, second);
 
       return {
         id: uuidv4(),

@@ -22,14 +22,47 @@ interface BlueskyPost {
 }
 
 export async function collectBluesky(entity: Entity): Promise<Mention[]> {
+  // Note: Bluesky searchPosts API now requires authentication
+  // See: https://docs.bsky.app/docs/api/app-bsky-feed-search-posts
+  const identifier = process.env.BLUESKY_IDENTIFIER; // username or email
+  const password = process.env.BLUESKY_APP_PASSWORD; // app password from settings
+
+  if (!identifier || !password) {
+    console.warn('Bluesky API: No credentials configured. Skipping Bluesky data collection.');
+    console.warn('To enable Bluesky, add BLUESKY_IDENTIFIER and BLUESKY_APP_PASSWORD to environment variables.');
+    console.warn('Get an app password from: https://bsky.app/settings/app-passwords');
+    return [];
+  }
+
   try {
+    // First, authenticate to get an access token
+    const authResponse = await fetch('https://bsky.social/xrpc/com.atproto.server.createSession', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        identifier,
+        password,
+      }),
+    });
+
+    if (!authResponse.ok) {
+      console.warn(`Bluesky authentication failed: ${authResponse.status}`);
+      return [];
+    }
+
+    const authData = await authResponse.json();
+    const accessToken = authData.accessJwt;
+
+    // Now search for posts with authentication
     const query = encodeURIComponent(entity.name);
-    // Using Bluesky's public API endpoint
     const url = `https://public.api.bsky.app/xrpc/app.bsky.feed.searchPosts?q=${query}&limit=25`;
 
     const response = await fetch(url, {
       headers: {
         'Accept': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
       },
     });
 

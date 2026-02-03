@@ -19,7 +19,7 @@ interface HNResult {
 export async function collectHackerNews(entity: Entity): Promise<Mention[]> {
   try {
     const query = encodeURIComponent(entity.name);
-    const url = `http://hn.algolia.com/api/v1/search?query=${query}&tags=story&hitsPerPage=20`;
+    const url = `https://hn.algolia.com/api/v1/search?query=${query}&tags=story&hitsPerPage=20`;
 
     const response = await fetch(url);
     if (!response.ok) {
