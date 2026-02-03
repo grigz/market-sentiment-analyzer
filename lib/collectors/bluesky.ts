@@ -27,6 +27,9 @@ export async function collectBluesky(entity: Entity): Promise<Mention[]> {
   const identifier = process.env.BLUESKY_IDENTIFIER; // username or email
   const password = process.env.BLUESKY_APP_PASSWORD; // app password from settings
 
+  // Debug: Check if env vars exist (don't log the actual values for security)
+  console.log(`  Bluesky env check - identifier: ${identifier ? 'SET' : 'NOT SET'}, password: ${password ? 'SET' : 'NOT SET'}`);
+
   if (!identifier || !password) {
     console.warn('Bluesky API: No credentials configured. Skipping Bluesky data collection.');
     console.warn('To enable Bluesky, add BLUESKY_IDENTIFIER and BLUESKY_APP_PASSWORD to environment variables.');
