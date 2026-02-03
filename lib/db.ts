@@ -141,4 +141,25 @@ export const db = {
     await Promise.all(entities.map(e => this.deleteEntity(e.id)));
     await redis.del('metadata:last_scan');
   },
+
+  // Clear all mentions but keep entities
+  async clearAllMentions(): Promise<void> {
+    const entities = await this.getAllEntities();
+
+    for (const entity of entities) {
+      // Get all mention IDs for this entity
+      const mentionIds = await redis.zrange(`mentions:entity:${entity.id}`, 0, -1);
+
+      // Delete each mention
+      for (const mentionId of mentionIds) {
+        await redis.del(`mention:${mentionId}`);
+      }
+
+      // Delete the entity's mention list
+      await redis.del(`mentions:entity:${entity.id}`);
+
+      // Delete insights for companies
+      await redis.del(`insights:company:${entity.id}`);
+    }
+  },
 };
