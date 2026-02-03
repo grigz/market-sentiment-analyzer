@@ -63,9 +63,9 @@ export const db = {
       member: mention.id,
     });
 
-    // Set TTL to 2 days (172800 seconds)
-    await redis.expire(mentionKey, 172800);
-    await redis.expire(entityKey, 172800);
+    // Set TTL to 7 days (604800 seconds)
+    await redis.expire(mentionKey, 604800);
+    await redis.expire(entityKey, 604800);
   },
 
   async getMention(id: string): Promise<Mention | null> {
@@ -93,7 +93,7 @@ export const db = {
     return mentions.filter((m): m is Mention => m !== null);
   },
 
-  async getRecentMentions(hours = 48): Promise<Mention[]> {
+  async getRecentMentions(hours = 168): Promise<Mention[]> {
     const cutoffTime = Date.now() - hours * 60 * 60 * 1000;
     const entities = await this.getAllEntities();
 
@@ -113,7 +113,7 @@ export const db = {
     const insightId = `${insight.category}:${Date.now()}`;
 
     await redis.hset(key, { [insightId]: JSON.stringify(insight) });
-    await redis.expire(key, 172800); // 2 days TTL
+    await redis.expire(key, 604800); // 7 days TTL
   },
 
   async getInsightsByCompany(entityId: string): Promise<CompanyInsight[]> {

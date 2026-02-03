@@ -12,7 +12,7 @@ A Next.js web application for tracking market sentiment across keywords and comp
 - **Company Intelligence**: Categorized insights into culture, opinions, and challenges
 - **Export Capabilities**: Download data in CSV and JSON formats
 - **Automated Scanning**: Runs daily at midnight UTC via Vercel Cron
-- **2-Day Window**: Focus on the most recent 48 hours of data
+- **7-Day Window**: Focus on the most recent week of data
 
 ## Tech Stack
 
@@ -381,8 +381,8 @@ Example cost: ~$2/month for 10,000 mentions with GPT-3.5.
    - Note: Same Google API credentials work for both X and LinkedIn
 
 5. **HackerNews/GDELT data collected but filtered out**:
-   - Check Vercel logs for "After 2-day filter" messages
-   - Data older than 48 hours is automatically filtered
+   - Check Vercel logs for "After 7-day filter" messages
+   - Data older than 7 days is automatically filtered
    - **Solution**: Verify timestamps in collector responses
 
 ### No data showing after scan
@@ -390,7 +390,7 @@ Example cost: ~$2/month for 10,000 mentions with GPT-3.5.
 **Check:**
 - Entity names are correctly spelled
 - Entities are enabled (not disabled)
-- Time window is set to 48 hours
+- Time window is set to 7 days
 - Redis connection is working (check env vars)
 - Check Vercel logs for actual API errors
 

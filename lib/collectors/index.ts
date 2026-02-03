@@ -119,11 +119,11 @@ export async function runScan(): Promise<ScanResult> {
     const mentions = await collectForEntity(entity);
     const uniqueMentions = deduplicateMentions(mentions);
 
-    // Filter to last 2 days
-    const twoDaysAgo = Date.now() - 2 * 24 * 60 * 60 * 1000;
+    // Filter to last 7 days (1 week)
+    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     console.log(`  Before filtering: ${uniqueMentions.length} unique mentions`);
-    const recentMentions = uniqueMentions.filter(m => m.publishedAt >= twoDaysAgo);
-    console.log(`  After 2-day filter: ${recentMentions.length} mentions (filtered out ${uniqueMentions.length - recentMentions.length})`);
+    const recentMentions = uniqueMentions.filter(m => m.publishedAt >= sevenDaysAgo);
+    console.log(`  After 7-day filter: ${recentMentions.length} mentions (filtered out ${uniqueMentions.length - recentMentions.length})`);
 
     // Log breakdown by source
     const sourceBreakdown = recentMentions.reduce((acc, m) => {
