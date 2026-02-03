@@ -27,8 +27,8 @@ export async function collectLinkedIn(entity: Entity): Promise<Mention[]> {
 
   try {
     // Search for LinkedIn posts mentioning the entity
-    const query = encodeURIComponent(`site:linkedin.com/posts OR site:linkedin.com/pulse "${entity.name}"`);
-    const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${query}&num=10`;
+    const query = encodeURIComponent(`site:linkedin.com "${entity.name}"`);
+    const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${query}&num=10&dateRestrict=w1`;
 
     const response = await fetch(url);
 

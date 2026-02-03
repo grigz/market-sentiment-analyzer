@@ -61,10 +61,8 @@ CRON_SECRET=your-secret-here
 BLUESKY_IDENTIFIER=your-username.bsky.social
 BLUESKY_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx
 
-# X/Twitter (optional - paid plans only)
-X_BEARER_TOKEN=your-bearer-token
-
-# LinkedIn via Google (optional)
+# X/Twitter AND LinkedIn via Google Custom Search (optional)
+# Free tier: 100 searches/day, Paid: $5/1000 queries
 GOOGLE_API_KEY=your-api-key
 GOOGLE_SEARCH_ENGINE_ID=your-search-engine-id
 
@@ -177,16 +175,18 @@ The app collects data from multiple sources. Here's what works out of the box vs
    - 🔐 **Requires free Bluesky account** (see setup below)
    - Free and unlimited once configured
 
-6. **X (Twitter)** - Requires Bearer Token
-   - Get API access at [developer.twitter.com](https://developer.twitter.com)
-   - Add `X_BEARER_TOKEN` to environment variables
-   - ⚠️ **Note**: Free tier no longer available, requires paid plan ($100+/month)
+6. **X (Twitter)** - Via Google Custom Search
+   - Uses Google Custom Search API instead of expensive X API
+   - Searches publicly indexed content from twitter.com and x.com
+   - 🔐 **Requires Google API** (free tier: 100 searches/day, paid: $5/1000 queries)
+   - Much cheaper alternative to X's $100+/month API
 
-7. **LinkedIn** - Requires Google Custom Search API
+7. **LinkedIn** - Via Google Custom Search
+   - Uses Google Custom Search API to search LinkedIn content
    - Get API key at [console.cloud.google.com](https://console.cloud.google.com)
    - Add `GOOGLE_API_KEY` and `GOOGLE_SEARCH_ENGINE_ID`
    - Searches LinkedIn posts via Google
-   - Alternative: Direct LinkedIn API (requires LinkedIn Developer approval)
+   - 🔐 **Same Google API** works for both X and LinkedIn
 
 ## Setting Up Optional Data Sources
 
@@ -216,25 +216,20 @@ Bluesky now requires authentication but it's completely free:
    - Select all environments (Production, Preview, Development)
    - Redeploy your application
 
-### X/Twitter Setup (Optional - Paid Only)
+### X/Twitter & LinkedIn Setup (Optional - Via Google Custom Search)
 
-X's API is now paid-only. Basic tier starts at $100/month:
+Both X and LinkedIn use the **same Google Custom Search API**, making setup simple:
 
-1. Apply for API access at https://developer.twitter.com
-2. Subscribe to a paid plan (Basic, Pro, or Enterprise)
-3. Get your Bearer Token from the developer portal
-4. Add to environment variables:
-   ```bash
-   X_BEARER_TOKEN=your-bearer-token
-   ```
+**Why Google Custom Search?**
+- X's native API costs $100+/month - Google is free (100 queries/day) or $5/1000 queries
+- LinkedIn's API requires special approval - Google works immediately
+- One API setup enables both platforms
 
-### LinkedIn Setup (Optional - Via Google)
-
-Use Google Custom Search API to search LinkedIn:
+**Setup Steps:**
 
 1. **Create Google Cloud Project**:
    - Go to https://console.cloud.google.com
-   - Create a new project
+   - Create a new project (or use existing)
 
 2. **Enable Custom Search API**:
    - Navigate to APIs & Services → Library
@@ -244,19 +239,25 @@ Use Google Custom Search API to search LinkedIn:
 3. **Get API Key**:
    - Go to APIs & Services → Credentials
    - Create Credentials → API Key
-   - Copy your API key
+   - Copy your API key (or use existing one)
 
 4. **Create Custom Search Engine**:
    - Go to https://programmablesearchengine.google.com
    - Create a new search engine
-   - Add `linkedin.com` as a site to search
-   - Get your Search Engine ID
+   - **Important**: Enable "Search the entire web" option
+   - Get your Search Engine ID (CX)
 
 5. **Add to environment variables**:
    ```bash
    GOOGLE_API_KEY=your-api-key
    GOOGLE_SEARCH_ENGINE_ID=your-search-engine-id
    ```
+
+**This single setup enables both X/Twitter AND LinkedIn data collection!**
+
+**Cost:**
+- Free tier: 100 searches/day (sufficient for most use cases)
+- Paid: $5 per 1000 additional queries
 
 ## Deployment to Vercel
 
@@ -280,9 +281,8 @@ Use Google Custom Search API to search LinkedIn:
    **Optional (for additional data sources):**
    - `BLUESKY_IDENTIFIER` - Your Bluesky username (e.g., username.bsky.social)
    - `BLUESKY_APP_PASSWORD` - App password from Bluesky settings
-   - `X_BEARER_TOKEN` - X/Twitter API bearer token (paid plans only)
-   - `GOOGLE_API_KEY` - For LinkedIn data via Google Custom Search
-   - `GOOGLE_SEARCH_ENGINE_ID` - For LinkedIn data via Google Custom Search
+   - `GOOGLE_API_KEY` - For X/Twitter AND LinkedIn data via Google Custom Search
+   - `GOOGLE_SEARCH_ENGINE_ID` - For X/Twitter AND LinkedIn data via Google Custom Search
 
 4. Deploy
 
@@ -370,13 +370,15 @@ Example cost: ~$2/month for 10,000 mentions with GPT-3.5.
    - This is expected behavior - Reddit's anti-bot measures are aggressive
    - **Solution**: Code uses best-effort approach with browser-like headers, but may still be blocked
 
-3. **X returns 402 (Payment Required)**:
-   - X/Twitter no longer has a free API tier
-   - **Solution**: Either subscribe to X API ($100+/month) or skip X data collection
+3. **X/Twitter returns 403**:
+   - Google Custom Search API not configured
+   - **Solution**: Add `GOOGLE_API_KEY` and `GOOGLE_SEARCH_ENGINE_ID` to enable X data collection
+   - Note: X now uses Google Custom Search instead of expensive X API
 
 4. **LinkedIn returns 403**:
    - Google Custom Search API not configured
-   - **Solution**: Add `GOOGLE_API_KEY` and `GOOGLE_SEARCH_ENGINE_ID` or skip LinkedIn
+   - **Solution**: Add `GOOGLE_API_KEY` and `GOOGLE_SEARCH_ENGINE_ID`
+   - Note: Same Google API credentials work for both X and LinkedIn
 
 5. **HackerNews/GDELT data collected but filtered out**:
    - Check Vercel logs for "After 2-day filter" messages
