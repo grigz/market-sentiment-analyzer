@@ -17,6 +17,16 @@ import { categorizeInsight } from '../sentiment';
  * Collect mentions from all sources for a single entity
  */
 async function collectForEntity(entity: Entity): Promise<Mention[]> {
+  const collectorNames = [
+    'HackerNews',
+    'Reddit',
+    'GDELT',
+    'GitHub',
+    'Bluesky',
+    'X',
+    'LinkedIn',
+  ];
+
   const collectors = [
     collectHackerNews(entity),
     collectReddit(entity),
@@ -28,6 +38,15 @@ async function collectForEntity(entity: Entity): Promise<Mention[]> {
   ];
 
   const results = await Promise.allSettled(collectors);
+
+  // Log results from each collector
+  results.forEach((result, index) => {
+    if (result.status === 'fulfilled') {
+      console.log(`  ${collectorNames[index]}: ${result.value.length} mentions`);
+    } else {
+      console.error(`  ${collectorNames[index]}: FAILED - ${result.reason}`);
+    }
+  });
 
   const allMentions = results
     .filter((r): r is PromiseFulfilledResult<Mention[]> => r.status === 'fulfilled')
