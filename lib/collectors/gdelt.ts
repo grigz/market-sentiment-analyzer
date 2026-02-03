@@ -19,7 +19,15 @@ interface GDELTArticle {
 export async function collectGDELT(entity: Entity): Promise<Mention[]> {
   try {
     const query = encodeURIComponent(entity.name);
-    const url = `https://api.gdeltproject.org/api/v2/doc/doc?query=${query}&mode=artlist&maxrecords=20&format=json`;
+
+    // Calculate start date (7 days ago) in GDELT format: YYYYMMDDHHMMSS
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const startDateTime = sevenDaysAgo.toISOString()
+      .replace(/[-:]/g, '')
+      .replace('T', '')
+      .slice(0, 14); // YYYYMMDDHHMMSS format
+
+    const url = `https://api.gdeltproject.org/api/v2/doc/doc?query=${query}&mode=artlist&startdatetime=${startDateTime}&maxrecords=20&format=json`;
 
     const response = await fetch(url);
     if (!response.ok) {

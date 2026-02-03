@@ -19,7 +19,9 @@ interface HNResult {
 export async function collectHackerNews(entity: Entity): Promise<Mention[]> {
   try {
     const query = encodeURIComponent(entity.name);
-    const url = `https://hn.algolia.com/api/v1/search?query=${query}&tags=story&hitsPerPage=20`;
+    // Filter to last 7 days (created_at_i is Unix timestamp in seconds)
+    const sevenDaysAgo = Math.floor((Date.now() - 7 * 24 * 60 * 60 * 1000) / 1000);
+    const url = `https://hn.algolia.com/api/v1/search?query=${query}&tags=story&numericFilters=created_at_i>${sevenDaysAgo}&hitsPerPage=20`;
 
     const response = await fetch(url);
     if (!response.ok) {
