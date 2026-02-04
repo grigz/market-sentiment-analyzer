@@ -8,9 +8,11 @@ interface ExportButtonsProps {
 }
 
 export default function ExportButtons({ entityId }: ExportButtonsProps) {
-  const [loading, setLoading] = useState(false);
+  const [loadingCsv, setLoadingCsv] = useState(false);
+  const [loadingJson, setLoadingJson] = useState(false);
 
   const handleExport = async (format: 'csv' | 'json') => {
+    const setLoading = format === 'csv' ? setLoadingCsv : setLoadingJson;
     setLoading(true);
     try {
       const url = entityId
@@ -18,6 +20,12 @@ export default function ExportButtons({ entityId }: ExportButtonsProps) {
         : `/api/export/${format}`;
 
       const response = await fetch(url);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || `Export failed with status ${response.status}`);
+      }
+
       const blob = await response.blob();
 
       const downloadUrl = window.URL.createObjectURL(blob);
@@ -29,7 +37,8 @@ export default function ExportButtons({ entityId }: ExportButtonsProps) {
       a.remove();
       window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
-      console.error('Export failed:', error);
+      console.error(`${format.toUpperCase()} export failed:`, error);
+      alert(`Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
@@ -39,19 +48,19 @@ export default function ExportButtons({ entityId }: ExportButtonsProps) {
     <div className="flex gap-2">
       <button
         onClick={() => handleExport('csv')}
-        disabled={loading}
+        disabled={loadingCsv || loadingJson}
         className="flex items-center gap-2 px-3 py-2 text-sm bg-secondary hover:bg-secondary/80 rounded-md transition-colors disabled:opacity-50"
       >
         <Download className="w-4 h-4" />
-        Export CSV
+        {loadingCsv ? 'Exporting...' : 'Export CSV'}
       </button>
       <button
         onClick={() => handleExport('json')}
-        disabled={loading}
+        disabled={loadingCsv || loadingJson}
         className="flex items-center gap-2 px-3 py-2 text-sm bg-secondary hover:bg-secondary/80 rounded-md transition-colors disabled:opacity-50"
       >
         <Download className="w-4 h-4" />
-        Export JSON
+        {loadingJson ? 'Exporting...' : 'Export JSON'}
       </button>
     </div>
   );

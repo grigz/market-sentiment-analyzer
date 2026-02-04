@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     if (entityId) {
       mentions = await db.getMentionsByEntity(entityId);
     } else {
-      mentions = await db.getRecentMentions(48);
+      mentions = await db.getRecentMentions(168); // 7 days
     }
 
     // Transform mentions to CSV format

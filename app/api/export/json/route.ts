@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     if (entityId) {
       mentions = await db.getMentionsByEntity(entityId);
     } else {
-      mentions = await db.getRecentMentions(48);
+      mentions = await db.getRecentMentions(168); // 7 days
     }
 
     // Get insights for all companies
@@ -44,8 +44,9 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('JSON export error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { success: false, error: 'Export failed' },
+      { success: false, error: `Export failed: ${errorMessage}` },
       { status: 500 }
     );
   }
