@@ -95,6 +95,38 @@ npm run dev
 4. Select type: Keyword or Company
 5. Click "Add"
 
+### Using Boolean Operators
+
+You can use boolean operators in entity names for more precise searches:
+
+**Supported Operators:**
+- `AND` - Both terms must appear
+- `OR` - Either term must appear
+- `NOT` - Exclude terms
+- `()` - Group terms
+
+**Examples:**
+```
+kubernetes AND security
+React OR Vue OR Angular
+"machine learning" NOT tutorial
+(docker OR kubernetes) AND production
+```
+
+**Platform Support:**
+- ✅ **HackerNews** - Full support (Algolia syntax)
+- ✅ **GDELT** - Basic support
+- ✅ **Bluesky** - Full support (Lucene syntax)
+- ✅ **X/Twitter** - Supported via Google Search
+- ✅ **LinkedIn** - Supported via Google Search
+- ❌ **Reddit** - Limited support
+- ❌ **GitHub** - Disabled (would support if enabled)
+
+**Tips:**
+- Use quotes for exact phrases: `"machine learning"`
+- Combine with AND/OR for complex queries
+- Test your queries to ensure they return expected results
+
 ### Scanning for Data
 
 **Manual Scan:**

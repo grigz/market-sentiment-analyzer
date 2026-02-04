@@ -30,7 +30,8 @@ export async function collectX(entity: Entity): Promise<Mention[]> {
   try {
     // Search for X/Twitter posts mentioning the entity
     // Use both twitter.com and x.com domains to catch all content
-    const query = encodeURIComponent(`(site:twitter.com OR site:x.com) "${entity.name}"`);
+    // Note: entity.name can include boolean operators (AND, OR, NOT)
+    const query = encodeURIComponent(`(site:twitter.com OR site:x.com) ${entity.name}`);
     const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${query}&num=10&dateRestrict=w1`;
 
     const response = await fetch(url);
