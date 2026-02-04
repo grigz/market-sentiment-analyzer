@@ -23,7 +23,10 @@ export default function ExportButtons({ entityId }: ExportButtonsProps) {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(errorData.error || `Export failed with status ${response.status}`);
+        const errorMsg = typeof errorData.error === 'string'
+          ? errorData.error
+          : JSON.stringify(errorData.error || errorData);
+        throw new Error(errorMsg || `Export failed with status ${response.status}`);
       }
 
       const blob = await response.blob();

@@ -36,7 +36,22 @@ export async function GET(request: NextRequest) {
 
     const filename = `sentiment-export-${new Date().toISOString().split('T')[0]}.json`;
 
-    return new NextResponse(JSON.stringify(exportData, null, 2), {
+    // Test JSON serialization before sending
+    let jsonString;
+    try {
+      jsonString = JSON.stringify(exportData, null, 2);
+    } catch (stringifyError) {
+      console.error('JSON stringify error:', stringifyError);
+      console.error('Export data sample:', {
+        entitiesCount: entities.length,
+        mentionsCount: mentions.length,
+        insightsCount: insights.flat().length,
+        sampleMention: mentions[0],
+      });
+      throw new Error(`Failed to serialize data: ${stringifyError instanceof Error ? stringifyError.message : 'Unknown'}`);
+    }
+
+    return new NextResponse(jsonString, {
       headers: {
         'Content-Type': 'application/json',
         'Content-Disposition': `attachment; filename="${filename}"`,
