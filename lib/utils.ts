@@ -107,3 +107,52 @@ export function getSentimentColor(sentiment: string): string {
       return 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-800';
   }
 }
+
+/**
+ * Check if entity name appears in text with proper word boundaries
+ * Returns true if the entity appears as complete words, not just substrings
+ */
+export function entityMatchesText(entityName: string, text: string): boolean {
+  if (!text || !entityName) return false;
+
+  // Normalize both for comparison
+  const normalizedText = text.toLowerCase();
+  const normalizedEntity = entityName.toLowerCase();
+
+  // Handle boolean operators - if entity contains AND/OR/NOT, check each term
+  const booleanPattern = /\b(AND|OR|NOT)\b/i;
+  if (booleanPattern.test(entityName)) {
+    // Extract individual terms (excluding boolean operators and parentheses)
+    const terms = entityName
+      .replace(/[()]/g, ' ')
+      .split(/\s+/)
+      .filter(term => !['and', 'or', 'not'].includes(term.toLowerCase()))
+      .filter(term => term.length > 0);
+
+    // At least one term must match for OR logic
+    // For AND logic, all terms should match (but we'll be lenient here)
+    return terms.some(term => {
+      const cleanTerm = term.replace(/['"]/g, '');
+      return entityMatchesText(cleanTerm, text);
+    });
+  }
+
+  // Remove quotes from entity name for matching
+  const cleanEntity = normalizedEntity.replace(/['"]/g, '');
+
+  // Create word boundary regex
+  // \b doesn't work well with special characters, so we use a more flexible pattern
+  const pattern = new RegExp(
+    `(?:^|[\\s.,;!?()\\[\\]{}'"'-])${escapeRegex(cleanEntity)}(?:[\\s.,;!?()\\[\\]{}'"'-]|$)`,
+    'i'
+  );
+
+  return pattern.test(normalizedText);
+}
+
+/**
+ * Escape special regex characters
+ */
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}

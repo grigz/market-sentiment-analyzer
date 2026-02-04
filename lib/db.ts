@@ -90,7 +90,21 @@ export const db = {
     const mentions = await Promise.all(
       mentionIds.map(id => this.getMention(id as string))
     );
-    return mentions.filter((m): m is Mention => m !== null);
+
+    const validMentions = mentions.filter((m): m is Mention => m !== null);
+
+    // Deduplicate by URL (same article may be stored with different IDs)
+    const uniqueByUrl = new Map<string, Mention>();
+    for (const mention of validMentions) {
+      const existing = uniqueByUrl.get(mention.url);
+      if (!existing || mention.collectedAt > existing.collectedAt) {
+        uniqueByUrl.set(mention.url, mention);
+      }
+    }
+
+    return Array.from(uniqueByUrl.values())
+      .sort((a, b) => b.publishedAt - a.publishedAt)
+      .slice(0, limit);
   },
 
   async getRecentMentions(hours = 168): Promise<Mention[]> {
@@ -101,9 +115,19 @@ export const db = {
       entities.map(entity => this.getMentionsByEntity(entity.id))
     );
 
-    return allMentions
-      .flat()
-      .filter(m => m.publishedAt >= cutoffTime)
+    // Deduplicate by URL (same article may have been collected multiple times)
+    const uniqueByUrl = new Map<string, Mention>();
+    for (const mention of allMentions.flat()) {
+      if (mention.publishedAt >= cutoffTime) {
+        // Keep the most recently collected version
+        const existing = uniqueByUrl.get(mention.url);
+        if (!existing || mention.collectedAt > existing.collectedAt) {
+          uniqueByUrl.set(mention.url, mention);
+        }
+      }
+    }
+
+    return Array.from(uniqueByUrl.values())
       .sort((a, b) => b.publishedAt - a.publishedAt);
   },
 

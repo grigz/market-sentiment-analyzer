@@ -12,6 +12,7 @@ import { collectBluesky } from './bluesky';
 import { collectX } from './x';
 import { collectLinkedIn } from './linkedin';
 import { categorizeInsight } from '../sentiment';
+import { entityMatchesText } from '../utils';
 
 /**
  * Collect mentions from all sources for a single entity
@@ -119,11 +120,17 @@ export async function runScan(): Promise<ScanResult> {
     const mentions = await collectForEntity(entity);
     const uniqueMentions = deduplicateMentions(mentions);
 
+    // Filter out false positives (entity name must actually appear in text)
+    const validMentions = uniqueMentions.filter(m =>
+      entityMatchesText(entity.name, m.fullText)
+    );
+    console.log(`  Before validation: ${uniqueMentions.length} unique mentions`);
+    console.log(`  After validation: ${validMentions.length} mentions (filtered out ${uniqueMentions.length - validMentions.length} false positives)`);
+
     // Filter to last 7 days (1 week)
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-    console.log(`  Before filtering: ${uniqueMentions.length} unique mentions`);
-    const recentMentions = uniqueMentions.filter(m => m.publishedAt >= sevenDaysAgo);
-    console.log(`  After 7-day filter: ${recentMentions.length} mentions (filtered out ${uniqueMentions.length - recentMentions.length})`);
+    const recentMentions = validMentions.filter(m => m.publishedAt >= sevenDaysAgo);
+    console.log(`  After 7-day filter: ${recentMentions.length} mentions (filtered out ${validMentions.length - recentMentions.length})`);
 
     // Log breakdown by source
     const sourceBreakdown = recentMentions.reduce((acc, m) => {
