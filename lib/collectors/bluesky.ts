@@ -51,7 +51,8 @@ export async function collectBluesky(entity: Entity): Promise<Mention[]> {
     });
 
     if (!authResponse.ok) {
-      console.warn(`Bluesky authentication failed: ${authResponse.status}`);
+      const authError = await authResponse.text();
+      console.warn(`Bluesky authentication failed: ${authResponse.status} - ${authError}`);
       return [];
     }
 
@@ -70,7 +71,8 @@ export async function collectBluesky(entity: Entity): Promise<Mention[]> {
     });
 
     if (!response.ok) {
-      console.warn(`Bluesky API error: ${response.status}`);
+      const errorBody = await response.text();
+      console.warn(`Bluesky search API error: ${response.status} - ${errorBody}`);
       return [];
     }
 
