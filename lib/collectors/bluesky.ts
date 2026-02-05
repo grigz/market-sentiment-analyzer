@@ -60,8 +60,9 @@ export async function collectBluesky(entity: Entity): Promise<Mention[]> {
     const accessToken = authData.accessJwt;
 
     // Now search for posts with authentication
+    // Use bsky.social (not public.api.bsky.app) when authenticated
     const query = encodeURIComponent(entity.name);
-    const url = `https://public.api.bsky.app/xrpc/app.bsky.feed.searchPosts?q=${query}&limit=25`;
+    const url = `https://bsky.social/xrpc/app.bsky.feed.searchPosts?q=${query}&limit=25`;
 
     const response = await fetch(url, {
       headers: {
