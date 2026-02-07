@@ -37,10 +37,12 @@ export async function collectX(entity: Entity): Promise<Mention[]> {
     const response = await fetch(url);
 
     if (!response.ok) {
+      const errorText = await response.text();
       if (response.status === 429) {
         console.warn('Google Custom Search API: Rate limit exceeded');
       } else {
         console.warn(`Google Custom Search API error: ${response.status}`);
+        console.warn(`Google API response: ${errorText}`);
       }
       return [];
     }

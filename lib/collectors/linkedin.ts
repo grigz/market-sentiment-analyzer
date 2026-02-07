@@ -34,7 +34,9 @@ export async function collectLinkedIn(entity: Entity): Promise<Mention[]> {
     const response = await fetch(url);
 
     if (!response.ok) {
+      const errorText = await response.text();
       console.warn(`Google Custom Search API error: ${response.status}`);
+      console.warn(`Google API response: ${errorText}`);
       return [];
     }
 

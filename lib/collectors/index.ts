@@ -11,6 +11,9 @@ import { collectGitHub } from './github';
 import { collectBluesky } from './bluesky';
 import { collectX } from './x';
 import { collectLinkedIn } from './linkedin';
+import { collectMastodon } from './mastodon';
+import { collectDevTo } from './devto';
+import { collectRSS } from './rss';
 import { categorizeInsight } from '../sentiment';
 import { entityMatchesText } from '../utils';
 
@@ -24,8 +27,11 @@ async function collectForEntity(entity: Entity): Promise<Mention[]> {
     'GDELT',
     // 'GitHub', // Disabled - too many posts
     'Bluesky',
-    'X',
-    'LinkedIn',
+    'Mastodon',
+    'Dev.to',
+    'RSS Feeds',
+    // 'X', // Disabled - Google Custom Search API issues
+    // 'LinkedIn', // Disabled - Google Custom Search API issues
   ];
 
   const collectors = [
@@ -34,8 +40,11 @@ async function collectForEntity(entity: Entity): Promise<Mention[]> {
     collectGDELT(entity),
     // collectGitHub(entity), // Disabled - too many posts
     collectBluesky(entity),
-    collectX(entity),
-    collectLinkedIn(entity),
+    collectMastodon(entity),
+    collectDevTo(entity),
+    collectRSS(entity),
+    // collectX(entity), // Disabled - Google Custom Search API issues
+    // collectLinkedIn(entity), // Disabled - Google Custom Search API issues
   ];
 
   const results = await Promise.allSettled(collectors);
